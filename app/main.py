@@ -21,7 +21,7 @@ def get_posts(db: Session = Depends(get_db)):
     return posts
 
 
-@app.get("/v1/posts/{post_id}")
+@app.get("/v1/posts/{post_id}", response_model=schemas.Post)
 def get_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if post is None:
@@ -30,7 +30,7 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
     return post
 
 
-@app.post("/v1/posts", status_code=status.HTTP_201_CREATED)
+@app.post("/v1/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
     new_post = models.Post(**post.dict())
     db.add(new_post)
@@ -40,7 +40,7 @@ def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
     return new_post
 
 
-@app.put("/v1/posts/{post_id}")
+@app.put("/v1/posts/{post_id}", response_model=schemas.Post)
 def update_post(post_id: int, post: schemas.PostCreate, db: Session = Depends(get_db)):
     post_query = db.query(models.Post).filter(models.Post.id == post_id)
     if post_query.first() is None:
