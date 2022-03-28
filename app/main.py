@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI, Response, status, HTTPException, Depends
 from sqlalchemy.orm import Session
 
@@ -15,7 +17,7 @@ def root():
     return {"message": "Welcome to Blog FastAPI!"}
 
 
-@app.get("/v1/posts")
+@app.get("/v1/posts", response_model=List[schemas.Post])
 def get_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     return posts
