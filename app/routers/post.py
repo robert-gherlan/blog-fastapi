@@ -49,10 +49,10 @@ def create_post(post: schemas.PostCreate, db: Session = Depends(get_db),
 def update_post(post_id: int, post: schemas.PostCreate, db: Session = Depends(get_db),
                 current_user: User = Depends(oauth2.get_current_user)):
     post_query = db.query(models.Post).filter(models.Post.id == post_id)
-    post = post_query.first()
+    found_post = post_query.first()
 
-    check_if_exists(post, post_id)
-    if post.owner_id != current_user.id:
+    check_if_exists(found_post, post_id)
+    if found_post.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to perform requested action")
 
     post_query.update(post.dict(), synchronize_session=False)
