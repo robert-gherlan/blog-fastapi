@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  api:
+    build: .
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    volumes:
+      # This is bind mount to synchronize current folder with the one from Docker
+      - ./:/usr/src/app:ro
+    command:
+      - uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - DATABASE_HOSTNAME=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=blog-fastapi
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - JWT_SECRET_KEY=41b0256e747d33d711ede43a60c130974c5e88dc872b64046efa015cf068bd1d
+      - JWT_ALGORITHM=HS256
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
+  postgres:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=blog-fastapi
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+
+volumes:
+  postgres-db:
