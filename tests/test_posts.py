@@ -84,6 +84,38 @@ def test_authorized_delete_post(authorized_client, test_posts):
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-def test_authorized_delete_post(authorized_client):
+def test_delete_non_existing_post(authorized_client):
     response = authorized_client.delete("/v1/posts/12345678")
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_delete_others_user_post(authorized_client, test_user, test_posts):
+    response = authorized_client.delete(f"/v1/posts/{test_posts[3].id}")
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_update_post(authorized_client, test_user, test_posts):
+    post = schemas.PostCreate(title="NEW TITLE", content="NEW CONTENT")
+    response = authorized_client.put(f"/v1/posts/{test_posts[0].id}", json=post.dict())
+    assert response.status_code == status.HTTP_200_OK
+    updated_post = schemas.Post(**response.json())
+    assert updated_post.title == post.title
+    assert updated_post.content == post.content
+
+
+def test_update_others_user_post(authorized_client, test_user, test_posts):
+    post = schemas.PostCreate(title="NEW TITLE", content="NEW CONTENT")
+    response = authorized_client.put(f"/v1/posts/{test_posts[3].id}", json=post.dict())
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_update_unauthorized_user(client, test_user, test_posts):
+    post = schemas.PostCreate(title="NEW TITLE", content="NEW CONTENT")
+    response = client.put(f"/v1/posts/{test_posts[3].id}", json=post.dict())
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_update_non_existing_post(authorized_client, test_user, test_posts):
+    post = schemas.PostCreate(title="NEW TITLE", content="NEW CONTENT")
+    response = authorized_client.put(f"/v1/posts/1234567", json=post.dict())
     assert response.status_code == status.HTTP_404_NOT_FOUND
