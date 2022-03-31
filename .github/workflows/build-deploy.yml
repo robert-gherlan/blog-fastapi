@@ -1,0 +1,61 @@
+name: Build and Deploy Code
+
+on:
+  push:
+    branches:
+      - "main"
+      - "dev_branch"
+      - "feature_branch"
+  pull_request:
+    branches:
+      - "main"
+      - "dev_branch"
+jobs:
+  build-job:
+    environment:
+      name: testing
+    env:
+      DATABASE_HOSTNAME: ${{secrets.DATABASE_HOSTNAME}}
+      DATABASE_PORT: ${{secrets.DATABASE_PORT}}
+      DATABASE_NAME: ${{secrets.DATABASE_NAME}}
+      DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
+      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+      JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
+      JWT_ALGORITHM: ${{secrets.JWT_ALGORITHM}}
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: ${{secrets.JWT_ACCESS_TOKEN_EXPIRE_MINUTES}}
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+          POSTGRES_DB: ${{secrets.DATABASE_NAME}}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["pypy-3.10"]
+    name: Python ${{ matrix.python-version }} sample
+    steps:
+      - name: "Pulling get repo"
+        uses: actions/checkout@v2
+      - name: "Echo Hello World"
+        run: echo "Hello world"
+      - name: "Setup Python"
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          arhitecture: x64
+      - name: "Update pip"
+        run: python -m pip install --upgrade pip
+      - name: "Install all dependencies"
+        run: pip install -r requirements.txt
+      - name: "Test with pytest"
+        run: |
+          pip install pytest
+          pytest -v -s
