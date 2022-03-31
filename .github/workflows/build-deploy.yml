@@ -92,9 +92,9 @@ jobs:
       name: production
     steps:
       - name: "Pulling the code from GitHub"
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
       - name: "Deploying the code to Heroku"
-      - uses: akhileshns/heroku-deploy@v3.12.12
+        uses: akhileshns/heroku-deploy@v3.12.12
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
@@ -107,9 +107,9 @@ jobs:
       name: production
     steps:
       - name: "Pulling the code from GitHub"
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
       - name: "Deploying the code to Ubuntu"
-      - uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@master
         with:
           host: ${{secrets.PRODUCTION_UBUNTU_HOST}}
           username: ${{secrets.PRODUCTION_UBUNTU_USERNAME}}
