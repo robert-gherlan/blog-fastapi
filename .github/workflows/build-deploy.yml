@@ -85,7 +85,7 @@ jobs:
       - name: "Docker Image digest"
         run: echo ${{steps.docker_build.outputs.digest}}
 
-  deploy-job:
+  deploy-heroku-job:
     runs-on: ubuntu-latest
     needs: [ build-job ]
     environment:
@@ -99,3 +99,22 @@ jobs:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
             heroku_email: ${{secrets.HEROKU_EMAIL}}
+
+  deploy-ubuntu-job:
+    runs-on: ubuntu-latest
+    needs: [ build-job ]
+    environment:
+      name: production
+    steps:
+      - name: "Pulling the code from GitHub"
+      - uses: actions/checkout@v2
+      - name: "Deploying the code to Ubuntu"
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.PRODUCTION_UBUNTU_HOST}}
+          username: ${{secrets.PRODUCTION_UBUNTU_USERNAME}}
+          password: ${{secrets.PRODUCTION_UBUNTU_PASSWORD}}
+          script: |
+            cd app/src
+            git pull
+            echo ${{secrets.PRODUCTION_UBUNTU_PASSWORD}} | sudo -S systemctl restart api
